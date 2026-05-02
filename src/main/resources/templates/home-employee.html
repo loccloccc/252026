@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employee List</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-4">
+
+    <h2 class="mb-3">Employee Management</h2>
+
+
+    <form th:action="@{/employees}" method="get" class="form-inline mb-3">
+        <input type="text" name="search" class="form-control mr-2"
+               placeholder="Search by name..."
+               th:value="${search}">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+
+    <a th:href="@{/add}" class="btn btn-success mb-3">Add Employee</a>
+
+
+    <div class="mb-3">
+        <strong>Sort:</strong>
+
+        <a th:href="@{/employees(sort='name,asc', search=${search})}"
+           class="btn btn-sm ">Name (a-z)</a>
+
+        <a th:href="@{/employees(sort='name,desc', search=${search})}"
+           class="btn btn-sm btn-outline-primary">Name (z-a)</a>
+
+        <a th:href="@{/employees(sort='age,asc', search=${search})}"
+           class="btn btn-sm btn-outline-primary">Age (cao - thap)</a>
+
+        <a th:href="@{/employees(sort='age,desc', search=${search})}"
+           class="btn btn-sm btn-outline-primary">Age (thap - cao)</a>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th class="text-center">ID</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Avatar</th>
+            <th>Status</th>
+            <th>Department</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:if="${#lists.isEmpty(employees)}">
+            <td colspan="6" class="text-center text-danger">
+                Không tìm thấy nhân viên nào
+            </td>
+        </tr>
+        <tr th:each="emp : ${employees}">
+            <td class="text-center" th:text="${emp.id}"></td>
+            <td th:text="${emp.name}"></td>
+            <td th:text="${emp.age}"></td>
+            <td>
+                <img th:src="@{${emp.avatar}}"
+                     style="width:50px;height:50px;border-radius:50%">
+            </td>
+            <td th:text="${emp.status}"></td>
+            <td th:text="${emp.department.name}"></td>
+        </tr>
+
+        </tbody>
+    </table>
+
+
+    <nav th:if="${totalPages > 0}">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${current == 0} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/employees(page=${current-1}, size=${pageSize}, search=${search}, sort=${param.sort})}">
+                    Previous
+                </a>
+            </li>
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, totalPages-1)}"
+                th:classappend="${i == current} ? 'active'">
+
+                <a class="page-link"
+                   th:href="@{/employees(page=${i}, size=${pageSize}, search=${search}, sort=${param.sort})}"
+                   th:text="${i + 1}">
+                </a>
+            </li>
+
+            <li class="page-item"
+                th:classappend="${current == totalPages-1} ? 'disabled'">
+
+                <a class="page-link"
+                   th:href="@{/employees(page=${current+1}, size=${pageSize}, search=${search}, sort=${param.sort})}">
+                    Next
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+
+</div>
+
+</body>
+</html>
