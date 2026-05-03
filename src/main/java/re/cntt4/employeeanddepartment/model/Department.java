@@ -21,6 +21,6 @@ public class Department {
     private String name;
     private String location;
 
-    @OneToMany(mappedBy = "department" , cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "department")
     private List<Employee> employees;
 }

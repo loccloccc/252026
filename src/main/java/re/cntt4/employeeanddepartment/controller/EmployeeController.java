@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import re.cntt4.employeeanddepartment.dto.EmployeeDTO;
 import re.cntt4.employeeanddepartment.model.Department;
 import re.cntt4.employeeanddepartment.model.Employee;
@@ -30,31 +31,31 @@ public class EmployeeController {
 
     @GetMapping("/employees")
     public String findAll(
-            @PageableDefault(
-                    page = 0,
-                    size = 5,
-                    sort = "name",
-                    direction = Sort.Direction.ASC
-            ) Pageable pageable,
+            @PageableDefault(size = 5) Pageable pageable,
 
-            @RequestParam(name = "search", defaultValue = "") String search,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) Integer minAge,
+            @RequestParam(required = false) Integer maxAge,
 
             Model model
     ) {
 
-        Page<Employee> employeePage;
-
-        if (search != null && !search.isEmpty()) {
-            employeePage = employeeServiceIMPL.searchEmployee(search, pageable);
-        } else {
-            employeePage = employeeServiceIMPL.getAllEmployee(pageable);
-        }
+        Page<Employee> employeePage = employeeServiceIMPL.searchAdvanced(
+                name, departmentId, minAge, maxAge, pageable
+        );
 
         model.addAttribute("employees", employeePage.getContent());
         model.addAttribute("current", employeePage.getNumber());
         model.addAttribute("totalPages", employeePage.getTotalPages());
         model.addAttribute("pageSize", employeePage.getSize());
-        model.addAttribute("search", search);
+
+        model.addAttribute("name", name);
+        model.addAttribute("departmentId", departmentId);
+        model.addAttribute("minAge", minAge);
+        model.addAttribute("maxAge", maxAge);
+
+        model.addAttribute("departments", departmentServiceIMPL.getAllDepartment());
 
         return "home-employee";
     }
@@ -102,4 +103,14 @@ public class EmployeeController {
         return "redirect:/employees";
     }
 
+    @GetMapping("/departments/delete/{id}")
+    public String deleteDepartment(@PathVariable Long id, RedirectAttributes ra){
+
+        departmentServiceIMPL.deleteDepartment(id);
+
+        ra.addFlashAttribute("message",
+                "Đã xóa phòng ban và cập nhật nhân viên");
+
+        return "redirect:/employees";
+    }
 }
